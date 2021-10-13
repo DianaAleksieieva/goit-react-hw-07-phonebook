@@ -1,18 +1,12 @@
-import actionTypes from './contacts-type'
+import { AddContact, RemoveContact,FilterContact} from './contacts-action'
+import { createReducer } from '@reduxjs/toolkit';
 
-export const contactListReducer = (state = [], { type, payload }) => {
-    switch (type) {
-        case actionTypes.ADDCONTACTS: 
-            return  [...state, payload];
-        case actionTypes.REMOVECONTACTS:
-            return  (state.filter(contact => contact.id !== payload)) ;
-        default: return state;
-    }
-};
-export const filterReducer = (state = '', { type, payload }) => {
-    switch (type) {
-        case actionTypes.FILTERCONTACTS:
-            return payload ;
-        default: return state;
-    }
-};
+export const contactListReducer = createReducer([], {
+    [AddContact]: (state, {payload}) => [...state, payload],
+    [RemoveContact]: (state, {payload})=> state.filter(contact => contact.id !== payload),
+})
+
+export const filterReducer = createReducer('', {
+    [FilterContact]: (_, {payload}) => payload,
+})
+

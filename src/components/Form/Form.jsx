@@ -1,15 +1,18 @@
 import React, { useState  } from 'react';
 import {Input} from '../App.styled.jsx';
 import PropTypes from 'prop-types';
+import { useSelector, useDispatch } from 'react-redux';
+import { AddContact } from '../../redux/contacts/contacts-action.js'
 
 export default function Form(props) {
+  const dispatch = useDispatch()
+  const contacts = useSelector((state) => state.contactList)
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
   
   
   const handleChange = event => {
     const { name, value } = event.target;
-
     switch (name) {
       case 'name':
         setName(value);
@@ -24,17 +27,26 @@ export default function Form(props) {
     }
   };
   
-  const handleSubmit = event => {
+  const addContact = event => {
     event.preventDefault()
-    props.onSubmit({name, number})
+  const isNameExist = contacts.find(contact => contact.name === name);
+        if (isNameExist) {
+          alert(`${name}is already in contacts`);
+          return
+      }
+    dispatch(AddContact({
+      name: name,
+      number: number
+    }))
     reset()
   }
+
   const reset = () => {
     setName('')
     setNumber('')
   }
     
-  return (<form onSubmit={handleSubmit}>
+  return (<form onSubmit={addContact}>
     <lable> Name
       <Input
         value={name}
@@ -58,9 +70,4 @@ export default function Form(props) {
     </lable>
     <button type="submit">Add contact</button>
   </form>)
-}
-
-Form.propTypes = {
-  name: PropTypes.string.isRequired,
-  number: PropTypes.number.isRequired
 }
