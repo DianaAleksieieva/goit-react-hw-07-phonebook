@@ -1,25 +1,15 @@
-import { persistStore, persistReducer } from 'redux-persist'
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { contactListReducer, filterReducer } from './contacts/contacts-reducer'
-import storage from 'redux-persist/lib/storage'
+import {configureStore} from '@reduxjs/toolkit';
+import {setupListeners } from '@reduxjs/toolkit/dist/query';
+import {contactApi} from './contacts/contacts-slice'
 
-const persistConfig = {
-  key: 'contacts',
-    storage,
-  blacklist: ['filter']
-}
-const rootReducer = combineReducers({
-    contactList: contactListReducer,
-    filter:filterReducer
-})
-
-const persistedReducer = persistReducer(persistConfig, rootReducer)
-
-const store = configureStore({
-    reducer: persistedReducer,
-    devTools:process.env.NODE_ENV === 'development',
+export const store = configureStore({
+    reducer: {
+    [contactApi.reducerPath]: contactApi.reducer,
+},
+    middleware: (getDefaultMiddleware) => [
+        ...getDefaultMiddleware(),
+        contactApi.middleware,
+    ],
 });
 
-let persistor = persistStore(store)
- 
-export default { store, persistor};
+setupListeners(store.dispatch)

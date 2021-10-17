@@ -1,15 +1,13 @@
 import React, { useState  } from 'react';
 import {Input} from '../App.styled.jsx';
-import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
-import { AddContact } from '../../redux/contacts/contacts-action.js'
+import { useAddContactMutation } from '../../redux/contacts/contacts-slice';
+import { useGetAllContactsQuery } from '../../redux/contacts/contacts-slice';
 
-export default function Form(props) {
-  const dispatch = useDispatch()
-  const contacts = useSelector((state) => state.contactList)
+const  Form = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-  
+  const [addContact, { isLoading },] = useAddContactMutation()
+  const { data } = useGetAllContactsQuery()
   
   const handleChange = event => {
     const { name, value } = event.target;
@@ -17,27 +15,23 @@ export default function Form(props) {
       case 'name':
         setName(value);
         break;
-
       case 'number':
         setNumber(value);
         break;
-
       default:
         return;
     }
   };
   
-  const addContact = event => {
+  const handleSubmit = event => {
     event.preventDefault()
-  const isNameExist = contacts.find(contact => contact.name === name);
+  const isNameExist = data.find(contact => contact.name === name);
         if (isNameExist) {
           alert(`${name}is already in contacts`);
+          reset()
           return
       }
-    dispatch(AddContact({
-      name: name,
-      number: number
-    }))
+    addContact({name, number})
     reset()
   }
 
@@ -46,7 +40,7 @@ export default function Form(props) {
     setNumber('')
   }
     
-  return (<form onSubmit={addContact}>
+  return (<form onSubmit={handleSubmit}>
     <lable> Name
       <Input
         value={name}
@@ -68,6 +62,8 @@ export default function Form(props) {
         title="Номер телефона должен состоять цифр и может содержать пробелы, тире, 
         круглые скобки и может начинаться с +" required />
     </lable>
-    <button type="submit">Add contact</button>
+    <button type="submit">{isLoading? 'Adding..' :'Add contact'}</button>
   </form>)
 }
+
+export default Form
